@@ -9,5 +9,7 @@ namespace Systems.SimpleEconomy.Operations
         public static OperationResult NotEnoughCurrency() => new(NOT_ENOUGH_CURRENCY);
         public static OperationResult CurrencyAdded() => OperationResult.GenericSuccess;
         public static OperationResult CurrencyTaken() => OperationResult.GenericSuccess;
+        
+        public static OperationResult Permitted() => OperationResult.GenericSuccess;
     }
 }

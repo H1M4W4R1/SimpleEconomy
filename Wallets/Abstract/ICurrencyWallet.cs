@@ -39,11 +39,11 @@ namespace Systems.SimpleEconomy.Wallets.Abstract
         /// <summary>
         ///     Checks if the specified amount of currency can be taken from the wallet
         /// </summary>
-        public OperationResult CanTakeCurrency(CurrencyTakeContext context);
+        public OperationResult CanTakeCurrency(in CurrencyTakeContext context);
 
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
         /// </summary>
-        public OperationResult CanAddCurrency(CurrencyAddContext context);
+        public OperationResult CanAddCurrency(in CurrencyAddContext context);
     }
 }

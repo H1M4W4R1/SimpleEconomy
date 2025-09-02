@@ -111,29 +111,29 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Event that is called when currency is taken from the wallet
         /// </summary>
-        protected virtual void OnCurrencyTaken(CurrencyTakeContext context, OperationResult<long> resultAmountLeft)
+        protected virtual void OnCurrencyTaken(in CurrencyTakeContext context, in OperationResult<long> resultAmountLeft)
             => context.currency.OnCurrencyTaken(context, resultAmountLeft);
 
         /// <summary>
         ///     Event that is called when currency is added to the wallet
         /// </summary>
-        protected virtual void OnCurrencyAdded(CurrencyAddContext context, OperationResult<long> resultAmountLeft)
+        protected virtual void OnCurrencyAdded(in CurrencyAddContext context, in OperationResult<long> resultAmountLeft)
             => context.currency.OnCurrencyAdded(context, resultAmountLeft);
 
         /// <summary>
         ///     Event that is called when currency take fails
         /// </summary>
         protected virtual void OnCurrencyTakeFailed(
-            CurrencyTakeContext context,
-            OperationResult<long> resultAmountExpected)
+            in CurrencyTakeContext context,
+            in OperationResult<long> resultAmountExpected)
             => context.currency.OnCurrencyTakeFailed(context, resultAmountExpected);
 
         /// <summary>
         ///     Event that is called when currency addition fails
         /// </summary>
         protected virtual void OnCurrencyAddFailed(
-            CurrencyAddContext context,
-            OperationResult<long> resultAmountExpected)
+            in CurrencyAddContext context,
+            in OperationResult<long> resultAmountExpected)
             => context.currency.OnCurrencyAddFailed(context, resultAmountExpected);
     }
 
@@ -164,7 +164,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Checks if the specified amount of currency can be taken from the wallet
         /// </summary>
-        public virtual OperationResult CanTakeCurrency(CurrencyTakeContext context)
+        public virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context)
         {
             if (Balance < context.amount) return EconomyOperations.NotEnoughCurrency();
             return context.currency.CanBeTaken(context);
@@ -173,7 +173,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
         /// </summary>
-        public virtual OperationResult CanAddCurrency(CurrencyAddContext context) =>
+        public virtual OperationResult CanAddCurrency(in CurrencyAddContext context) =>
             context.currency.CanBeAdded(context);
     }
 }

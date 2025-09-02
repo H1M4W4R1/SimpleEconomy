@@ -2,6 +2,7 @@
 using Systems.SimpleCore.Operations;
 using Systems.SimpleEconomy.Data;
 using Systems.SimpleEconomy.Data.Context;
+using Systems.SimpleEconomy.Operations;
 using UnityEngine;
 
 namespace Systems.SimpleEconomy.Currencies
@@ -14,19 +15,19 @@ namespace Systems.SimpleEconomy.Currencies
         /// <summary>
         ///     Checks if the specified amount of currency can be added.
         /// </summary>
-        public virtual OperationResult CanBeAdded(CurrencyAddContext context) => (OperationResult) true;
+        public virtual OperationResult CanBeAdded(in CurrencyAddContext context) => EconomyOperations.Permitted();
 
         /// <summary>
         ///     Check if specified amount of currency can be taken.
         /// </summary>
-        public virtual OperationResult CanBeTaken(CurrencyTakeContext context) => (OperationResult) true;
+        public virtual OperationResult CanBeTaken(in CurrencyTakeContext context) => EconomyOperations.Permitted();
 
         /// <summary>
         ///     Event that is called when currency is taken.
         /// </summary>
         protected internal virtual void OnCurrencyTaken(
-            CurrencyTakeContext context,
-            OperationResult<long> resultAmountLeft)
+            in CurrencyTakeContext context,
+            in OperationResult<long> resultAmountLeft)
         {
         }
 
@@ -34,8 +35,8 @@ namespace Systems.SimpleEconomy.Currencies
         ///     Event that is called when currency take fails.
         /// </summary>
         protected internal virtual void OnCurrencyTakeFailed(
-            CurrencyTakeContext context,
-            OperationResult<long> resultAmountExpected)
+            in CurrencyTakeContext context,
+            in OperationResult<long> resultAmountExpected)
         {
         }
 
@@ -43,8 +44,8 @@ namespace Systems.SimpleEconomy.Currencies
         ///     Event that is called when currency is added.
         /// </summary>
         protected internal virtual void OnCurrencyAdded(
-            CurrencyAddContext context,
-            OperationResult<long> resultAmountLeft)
+            in CurrencyAddContext context,
+            in OperationResult<long> resultAmountLeft)
         {
         }
 
@@ -52,8 +53,8 @@ namespace Systems.SimpleEconomy.Currencies
         ///     Event that is called when currency addition fails.
         /// </summary>
         protected internal virtual void OnCurrencyAddFailed(
-            CurrencyAddContext context,
-            OperationResult<long> resultAmountExpected)
+            in CurrencyAddContext context,
+            in OperationResult<long> resultAmountExpected)
         {
         }
     }
