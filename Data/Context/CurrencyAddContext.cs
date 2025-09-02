@@ -20,7 +20,7 @@ namespace Systems.SimpleEconomy.Data.Context
         public readonly ICurrencyWallet wallet;
         
         /// <summary>
-        ///     Amount of currency to add or added
+        ///     Amount of currency that was expected to be added
         /// </summary>
         public readonly long amount;
 

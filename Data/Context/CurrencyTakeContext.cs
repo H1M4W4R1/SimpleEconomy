@@ -20,12 +20,10 @@ namespace Systems.SimpleEconomy.Data.Context
         public readonly ICurrencyWallet wallet;
         
         /// <summary>
-        ///     Amount of currency to take or taken
+        ///     Amount of currency that was expected to be taken
         /// </summary>
         public readonly long amount;
 
-        public CurrencyTakeContext WithNewAmount(long newAmount) => new(currency, wallet, newAmount);
-        
         public CurrencyTakeContext(CurrencyBase currency, ICurrencyWallet wallet, long amount)
         {
             this.currency = currency;

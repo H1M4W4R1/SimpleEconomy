@@ -1,4 +1,5 @@
-﻿using Systems.SimpleCore.Utility.Enums;
+﻿using Systems.SimpleCore.Operations;
+using Systems.SimpleCore.Utility.Enums;
 using Systems.SimpleEconomy.Data.Context;
 using Systems.SimpleEconomy.Data.Enums;
 
@@ -17,8 +18,8 @@ namespace Systems.SimpleEconomy.Wallets.Abstract
         /// <param name="currencyAmount">Amount of currency to take</param>
         /// <param name="flags">Flags that modify the behavior of the method</param>
         /// <param name="actionSource">Source of the action</param>
-        /// <returns>True if the currency was taken, false otherwise</returns>
-        public bool TryTake(
+        /// <returns>Amount of currency that was left</returns>
+        public OperationResult<long> TryTake(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External);
@@ -30,7 +31,7 @@ namespace Systems.SimpleEconomy.Wallets.Abstract
         /// <param name="flags">Flags that modify the behavior of the method</param>
         /// <param name="actionSource">Source of the action</param>
         /// <returns>Amount of currency that was left</returns>
-        public long TryAdd(
+        public OperationResult<long> TryAdd(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External);
@@ -38,11 +39,11 @@ namespace Systems.SimpleEconomy.Wallets.Abstract
         /// <summary>
         ///     Checks if the specified amount of currency can be taken from the wallet
         /// </summary>
-        public bool CanTakeCurrency(CurrencyTakeContext context);
+        public OperationResult CanTakeCurrency(CurrencyTakeContext context);
 
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
         /// </summary>
-        public bool CanAddCurrency(CurrencyAddContext context);
+        public OperationResult CanAddCurrency(CurrencyAddContext context);
     }
 }
