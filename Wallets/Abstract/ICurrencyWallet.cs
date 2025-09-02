@@ -1,4 +1,6 @@
-﻿using Systems.SimpleEconomy.Data.Context;
+﻿using Systems.SimpleCore.Utility.Enums;
+using Systems.SimpleEconomy.Data.Context;
+using Systems.SimpleEconomy.Data.Enums;
 
 namespace Systems.SimpleEconomy.Wallets.Abstract
 {
@@ -13,24 +15,34 @@ namespace Systems.SimpleEconomy.Wallets.Abstract
         ///     Tries to take the specified amount of currency from the wallet
         /// </summary>
         /// <param name="currencyAmount">Amount of currency to take</param>
+        /// <param name="flags">Flags that modify the behavior of the method</param>
+        /// <param name="actionSource">Source of the action</param>
         /// <returns>True if the currency was taken, false otherwise</returns>
-        public bool TryTake(long currencyAmount);
-        
+        public bool TryTake(
+            long currencyAmount,
+            ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
+            ActionSource actionSource = ActionSource.External);
+
         /// <summary>
         ///     Tries to add the specified amount of currency to the wallet
         /// </summary>
         /// <param name="currencyAmount">Amount of currency to add</param>
+        /// <param name="flags">Flags that modify the behavior of the method</param>
+        /// <param name="actionSource">Source of the action</param>
         /// <returns>Amount of currency that was left</returns>
-        public long TryAdd(long currencyAmount);
+        public long TryAdd(
+            long currencyAmount,
+            ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
+            ActionSource actionSource = ActionSource.External);
 
         /// <summary>
         ///     Checks if the specified amount of currency can be taken from the wallet
         /// </summary>
-        public bool CanTake(CurrencyTakeContext context);
+        public bool CanTakeCurrency(CurrencyTakeContext context);
 
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
         /// </summary>
-        public bool CanAdd(CurrencyAddContext context);
+        public bool CanAddCurrency(CurrencyAddContext context);
     }
 }

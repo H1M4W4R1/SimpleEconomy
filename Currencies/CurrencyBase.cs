@@ -27,8 +27,18 @@ namespace Systems.SimpleEconomy.Currencies
         protected internal virtual void OnCurrencyTaken(CurrencyTakeContext context) { }
         
         /// <summary>
+        ///     Event that is called when currency take fails.
+        /// </summary>
+        protected internal virtual void OnCurrencyTakeFailed(CurrencyTakeContext context) { }
+        
+        /// <summary>
         ///     Event that is called when currency is added.
         /// </summary>
         protected internal virtual void OnCurrencyAdded(CurrencyAddContext context) { }
+        
+        /// <summary>
+        ///     Event that is called when currency addition fails.
+        /// </summary>
+        protected internal virtual void OnCurrencyAddFailed(CurrencyAddContext context) { }
     }
 }
