@@ -14,12 +14,12 @@ namespace Systems.SimpleEconomy.Currencies
         /// <summary>
         ///     Checks if the specified amount of currency can be added.
         /// </summary>
-        protected internal virtual bool CanBeAdded(CurrencyAddContext context) => true;
+        public virtual bool CanBeAdded(CurrencyAddContext context) => true;
         
         /// <summary>
         ///     Check if specified amount of currency can be taken.
         /// </summary>
-        protected internal virtual bool CanBeTaken(CurrencyTakeContext context) => true;
+        public virtual bool CanBeTaken(CurrencyTakeContext context) => true;
         
         /// <summary>
         ///     Event that is called when currency is taken.
