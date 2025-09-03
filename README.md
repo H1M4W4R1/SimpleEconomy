@@ -1,17 +1,19 @@
-﻿# Simple Economy
-## About
+﻿<div align="center">
+  <h1>Simple Economy</h1>
+</div>
+# About
 Simple Economy is a subpackage of SimpleKit intended for quick and easy implementation of a basic
 and more complicated economy.
 
 *For requirements check .asmdef*
 
-## Creating a currency
+# Creating a currency
 Currency is an information object that is used to store basic currency info (such as name, symbol, etc.) and events.
 
 To create a currency simply extend `CurrencyBase` class (it's an Auto-Created ScriptableObject) and implement
 desired checks and events. For reference of all available events and checks see `CurrencyBase` class.
 
-## Creating a wallet
+# Creating a wallet
 Wallet is storage of currencies. To create a wallet simply extend `CurrencyWalletBase<TCurrency>` class
 and implement desired events / methods. 
 
