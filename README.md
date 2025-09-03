@@ -15,6 +15,19 @@ Currency is an information object that is used to store basic currency info (suc
 To create a currency simply extend `CurrencyBase` class (it's an Auto-Created ScriptableObject) and implement
 desired checks and events. For reference of all available events and checks see `CurrencyBase` class.
 
+```csharp
+public sealed class DiamondsCurrency : CurrencyBase
+{
+     protected internal override void OnCurrencyAddFailed(
+            in CurrencyAddContext context,
+            in OperationResult<long> resultAmountExpected) =>
+            Debug.LogError("Can't add currency :(");    
+}
+
+```
+
+Of course you can create abstract currencies to store common properties or logic.
+
 # Creating a wallet
 Wallet is storage of currencies. To create a wallet simply extend `CurrencyWalletBase<TCurrency>` class
 and implement desired events / methods. 
@@ -23,3 +36,10 @@ Beware that overriding wallet methods may disable calls to
 currency-level events as they're proxy-passed from wallet events to currency class.
 
 Wallets after creation can be added to GameObjects to make them store currencies.
+
+```csharp
+public sealed class DiamondsWallet : CurrencyWalletBase<DiamondsCurrency>
+{
+    // Override desired methods
+}
+```
