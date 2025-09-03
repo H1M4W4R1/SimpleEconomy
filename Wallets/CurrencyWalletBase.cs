@@ -29,7 +29,15 @@ namespace Systems.SimpleEconomy.Wallets
             Balance += currencyAmount;
             return 0;
         }
-
+        
+        /// <summary>
+        ///     Attempts to add the specified amount of currency to the wallet.
+        ///     If the currency cannot be added, a failed operation result is returned.
+        /// </summary>
+        /// <param name="currencyAmount">Amount of currency to add</param>
+        /// <param name="flags">Flags to modify wallet behavior</param>
+        /// <param name="actionSource">Source of the action</param>
+        /// <returns>Operation result of the add attempt with remaining amount of currency</returns>
         public sealed override OperationResult<long> TryAdd(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
@@ -69,7 +77,15 @@ namespace Systems.SimpleEconomy.Wallets
             return currencyAddResult;
         }
 
-
+        
+        /// <summary>
+        ///     Attempts to take the specified amount of currency from the wallet.
+        ///     If the currency cannot be taken, a failed operation result is returned.
+        /// </summary>
+        /// <param name="currencyAmount">Amount of currency to take</param>
+        /// <param name="flags">Flags to modify wallet behavior</param>
+        /// <param name="actionSource">Source of the action</param>
+        /// <returns>Operation result of the take attempt with remaining amount of currency</returns>
         public sealed override OperationResult<long> TryTake(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
