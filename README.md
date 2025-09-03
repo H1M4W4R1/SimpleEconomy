@@ -1,6 +1,7 @@
 ﻿<div align="center">
   <h1>Simple Economy</h1>
 </div>
+
 # About
 Simple Economy is a subpackage of SimpleKit intended for quick and easy implementation of a basic
 and more complicated economy.
