@@ -44,9 +44,9 @@ public sealed class DiamondsWallet : CurrencyWalletBase<DiamondsCurrency>
 }
 ```
 
-# Adding currencies
+# Adding currency
 
-To add currencies to a wallet use `TryAdd` method. 
+To add currency to a wallet use `TryAdd` method. 
 
 ```csharp
 OperationResult<long> currencyLeftToAdd = wallet.TryAdd(100, ModifyWalletCurrencyFlags.None, ActionSource.External);
