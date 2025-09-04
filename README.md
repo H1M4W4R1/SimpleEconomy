@@ -43,3 +43,30 @@ public sealed class DiamondsWallet : CurrencyWalletBase<DiamondsCurrency>
     // Override desired methods
 }
 ```
+
+# Adding currencies
+
+To add currencies to a wallet use `TryAdd` method. 
+
+```csharp
+OperationResult<long> currencyLeftToAdd = wallet.TryAdd(100, ModifyWalletCurrencyFlags.None, ActionSource.External);
+```
+
+You can specify `ModifyWalletCurrencyFlags` to modify wallet behavior (for example, to prevent checking
+for conditions if your money has to be added). Also you can change `ActionSource` to make action
+internal and prevent it from triggering events.
+
+If you set currency to ignore checks then it will try to add currency, however you can modify add behaviour
+by overriding `Add` method to enforce currency limits. In such case you should return OperationResult with amount
+of currency that was not added which then will be proxied outwards.
+
+# Taking currency
+
+Similarly to `TryAdd` there's `TryTake` which uses same set of parameters, but instead of adding currency
+it takes from wallet. Minimum balance is always enforced to be zero, so even if you ignore checks it will never allow
+negative balance.
+
+```csharp
+OperationResult<long> currencyLeftToTake = wallet.TryTake(100, ModifyWalletCurrencyFlags.IgnoreConditions, ActionSource.
+Internal);
+```
