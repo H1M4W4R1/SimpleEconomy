@@ -5,7 +5,6 @@ using Systems.SimpleEconomy.Data;
 using Systems.SimpleEconomy.Data.Context;
 using Systems.SimpleEconomy.Data.Enums;
 using Systems.SimpleEconomy.Operations;
-using Systems.SimpleEconomy.Wallets.Abstract;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -153,7 +152,7 @@ namespace Systems.SimpleEconomy.Wallets
             => context.currency.OnCurrencyAddFailed(context, resultAmountExpected);
     }
 
-    public abstract class CurrencyWalletBase : MonoBehaviour, ICurrencyWallet
+    public abstract class CurrencyWalletBase : MonoBehaviour
     {
         /// <summary>
         ///     Balance of the wallet
@@ -180,7 +179,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Checks if the specified amount of currency can be taken from the wallet
         /// </summary>
-        public virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context)
+        protected virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context)
         {
             if (Balance < context.amount) return EconomyOperations.NotEnoughCurrency();
             return context.currency.CanBeTaken(context);
@@ -189,7 +188,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
         /// </summary>
-        public virtual OperationResult CanAddCurrency(in CurrencyAddContext context) =>
+        protected virtual OperationResult CanAddCurrency(in CurrencyAddContext context) =>
             context.currency.CanBeAdded(context);
     }
 }

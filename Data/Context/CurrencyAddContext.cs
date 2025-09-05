@@ -1,6 +1,5 @@
 ﻿using Systems.SimpleEconomy.Currencies;
 using Systems.SimpleEconomy.Wallets;
-using Systems.SimpleEconomy.Wallets.Abstract;
 
 namespace Systems.SimpleEconomy.Data.Context
 {
@@ -17,7 +16,7 @@ namespace Systems.SimpleEconomy.Data.Context
         /// <summary>
         ///     Wallet to which currency is added
         /// </summary>
-        public readonly ICurrencyWallet wallet;
+        public readonly CurrencyWalletBase wallet;
         
         /// <summary>
         ///     Amount of currency that was expected to be added
@@ -26,7 +25,7 @@ namespace Systems.SimpleEconomy.Data.Context
 
         public CurrencyAddContext WithNewAmount(long newAmount) => new(currency, wallet, newAmount);
         
-        public CurrencyAddContext(CurrencyBase currency, ICurrencyWallet wallet, long amount)
+        public CurrencyAddContext(CurrencyBase currency, CurrencyWalletBase wallet, long amount)
         {
             this.currency = currency;
             this.wallet = wallet;

@@ -15,12 +15,12 @@ namespace Systems.SimpleEconomy.Currencies
         /// <summary>
         ///     Checks if the specified amount of currency can be added.
         /// </summary>
-        public virtual OperationResult CanBeAdded(in CurrencyAddContext context) => EconomyOperations.Permitted();
+        protected internal virtual OperationResult CanBeAdded(in CurrencyAddContext context) => EconomyOperations.Permitted();
 
         /// <summary>
         ///     Check if specified amount of currency can be taken.
         /// </summary>
-        public virtual OperationResult CanBeTaken(in CurrencyTakeContext context) => EconomyOperations.Permitted();
+        protected internal virtual OperationResult CanBeTaken(in CurrencyTakeContext context) => EconomyOperations.Permitted();
 
         /// <summary>
         ///     Event that is called when currency is taken.
