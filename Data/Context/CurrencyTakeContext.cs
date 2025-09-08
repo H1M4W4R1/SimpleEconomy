@@ -21,13 +21,13 @@ namespace Systems.SimpleEconomy.Data.Context
         /// <summary>
         ///     Amount of currency that was expected to be taken
         /// </summary>
-        public readonly long amount;
+        public readonly long amountExpected;
 
-        public CurrencyTakeContext(CurrencyBase currency, CurrencyWalletBase wallet, long amount)
+        public CurrencyTakeContext(CurrencyBase currency, CurrencyWalletBase wallet, long amountExpected)
         {
             this.currency = currency;
             this.wallet = wallet;
-            this.amount = amount;
+            this.amountExpected = amountExpected;
         }
     }
 }

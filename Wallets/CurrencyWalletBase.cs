@@ -37,7 +37,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <param name="flags">Flags to modify wallet behavior</param>
         /// <param name="actionSource">Source of the action</param>
         /// <returns>Operation result of the add attempt with remaining amount of currency</returns>
-        public sealed override OperationResult<long> TryAdd(
+        public sealed override OperationResult TryAdd(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External)
@@ -50,7 +50,7 @@ namespace Systems.SimpleEconomy.Wallets
             CurrencyAddContext context = new(currency, this, currencyAmount);
 
             // Ensure that currency can be added
-            OperationResult<long> canAddCurrency = CanAddCurrency(context).WithData(currencyAmount);
+            OperationResult canAddCurrency = CanAddCurrency(context);
             if (!canAddCurrency && (flags & ModifyWalletCurrencyFlags.IgnoreConditions) == 0)
             {
                 // Invoke event
@@ -65,14 +65,12 @@ namespace Systems.SimpleEconomy.Wallets
             currencyAmount = Add(currencyAmount);
 
             // Invoke event
-            OperationResult<long> currencyAddResult = EconomyOperations.CurrencyAdded().WithData(currencyAmount);
+            OperationResult currencyAddResult = EconomyOperations.CurrencyAdded();
             if (actionSource == ActionSource.Internal) return currencyAddResult;
 
             // Update context
             long currencyLeft = currencyToAdd - currencyAmount;
-            context = context.WithNewAmount(currencyLeft);
-
-            OnCurrencyAdded(context, currencyAddResult);
+            OnCurrencyAdded(context, currencyAddResult, currencyLeft);
             return currencyAddResult;
         }
 
@@ -85,7 +83,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <param name="flags">Flags to modify wallet behavior</param>
         /// <param name="actionSource">Source of the action</param>
         /// <returns>Operation result of the take attempt with remaining amount of currency</returns>
-        public sealed override OperationResult<long> TryTake(
+        public sealed override OperationResult TryTake(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External
@@ -99,7 +97,7 @@ namespace Systems.SimpleEconomy.Wallets
             CurrencyTakeContext context = new(currency, this, currencyAmount);
 
             // Ensure that currency can be taken
-            OperationResult<long> canTakeCurrency = CanTakeCurrency(context).WithData(currencyAmount);
+            OperationResult canTakeCurrency = CanTakeCurrency(context);
             if (!canTakeCurrency && (flags & ModifyWalletCurrencyFlags.IgnoreConditions) == 0)
             {
                 // Invoke event
@@ -114,42 +112,41 @@ namespace Systems.SimpleEconomy.Wallets
             // Take currency
             Balance -= currencyTaken;
 
-            OperationResult<long> currencyTakeResult =
-                EconomyOperations.CurrencyTaken().WithData(currencyLeftToTake);
+            OperationResult currencyTakeResult = EconomyOperations.CurrencyTaken();
 
             // Invoke event
             if (actionSource == ActionSource.Internal) return currencyTakeResult;
-            OnCurrencyTaken(context, currencyTakeResult);
+            OnCurrencyTaken(context, currencyTakeResult, currencyLeftToTake);
             return currencyTakeResult;
         }
 
         /// <summary>
         ///     Event that is called when currency is taken from the wallet
         /// </summary>
-        protected virtual void OnCurrencyTaken(in CurrencyTakeContext context, in OperationResult<long> resultAmountLeft)
-            => context.currency.OnCurrencyTaken(context, resultAmountLeft);
+        protected virtual void OnCurrencyTaken(in CurrencyTakeContext context, in OperationResult result, long amountLeft)
+            => context.currency.OnCurrencyTaken(context, result, amountLeft);
 
         /// <summary>
         ///     Event that is called when currency is added to the wallet
         /// </summary>
-        protected virtual void OnCurrencyAdded(in CurrencyAddContext context, in OperationResult<long> resultAmountLeft)
-            => context.currency.OnCurrencyAdded(context, resultAmountLeft);
+        protected virtual void OnCurrencyAdded(in CurrencyAddContext context, in OperationResult result, long amountLeft)
+            => context.currency.OnCurrencyAdded(context, result, amountLeft);
 
         /// <summary>
         ///     Event that is called when currency take fails
         /// </summary>
         protected virtual void OnCurrencyTakeFailed(
             in CurrencyTakeContext context,
-            in OperationResult<long> resultAmountExpected)
-            => context.currency.OnCurrencyTakeFailed(context, resultAmountExpected);
+            in OperationResult result)
+            => context.currency.OnCurrencyTakeFailed(context, result);
 
         /// <summary>
         ///     Event that is called when currency addition fails
         /// </summary>
         protected virtual void OnCurrencyAddFailed(
             in CurrencyAddContext context,
-            in OperationResult<long> resultAmountExpected)
-            => context.currency.OnCurrencyAddFailed(context, resultAmountExpected);
+            in OperationResult result)
+            => context.currency.OnCurrencyAddFailed(context, result);
     }
 
     public abstract class CurrencyWalletBase : MonoBehaviour
@@ -166,12 +163,12 @@ namespace Systems.SimpleEconomy.Wallets
         /// <returns>True if the wallet has the specified amount of currency, false otherwise</returns>
         public virtual bool Has(long currencyAmount) => Balance >= currencyAmount;
 
-        public abstract OperationResult<long> TryTake(
+        public abstract OperationResult TryTake(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External);
 
-        public abstract OperationResult<long> TryAdd(
+        public abstract OperationResult TryAdd(
             long currencyAmount,
             ModifyWalletCurrencyFlags flags = ModifyWalletCurrencyFlags.None,
             ActionSource actionSource = ActionSource.External);
@@ -181,7 +178,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// </summary>
         protected virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context)
         {
-            if (Balance < context.amount) return EconomyOperations.NotEnoughCurrency();
+            if (Balance < context.amountExpected) return EconomyOperations.NotEnoughCurrency();
             return context.currency.CanBeTaken(context);
         }
 

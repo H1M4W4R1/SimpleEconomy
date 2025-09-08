@@ -27,7 +27,8 @@ namespace Systems.SimpleEconomy.Currencies
         /// </summary>
         protected internal virtual void OnCurrencyTaken(
             in CurrencyTakeContext context,
-            in OperationResult<long> resultAmountLeft)
+            in OperationResult result,
+            long amountLeft)
         {
         }
 
@@ -36,7 +37,7 @@ namespace Systems.SimpleEconomy.Currencies
         /// </summary>
         protected internal virtual void OnCurrencyTakeFailed(
             in CurrencyTakeContext context,
-            in OperationResult<long> resultAmountExpected)
+            in OperationResult result)
         {
         }
 
@@ -45,7 +46,8 @@ namespace Systems.SimpleEconomy.Currencies
         /// </summary>
         protected internal virtual void OnCurrencyAdded(
             in CurrencyAddContext context,
-            in OperationResult<long> resultAmountLeft)
+            in OperationResult result,
+            long amountLeft)
         {
         }
 
@@ -54,7 +56,7 @@ namespace Systems.SimpleEconomy.Currencies
         /// </summary>
         protected internal virtual void OnCurrencyAddFailed(
             in CurrencyAddContext context,
-            in OperationResult<long> resultAmountExpected)
+            in OperationResult result)
         {
         }
     }

@@ -22,8 +22,6 @@ namespace Systems.SimpleEconomy.Data.Context
         ///     Amount of currency that was expected to be added
         /// </summary>
         public readonly long amount;
-
-        public CurrencyAddContext WithNewAmount(long newAmount) => new(currency, wallet, newAmount);
         
         public CurrencyAddContext(CurrencyBase currency, CurrencyWalletBase wallet, long amount)
         {
