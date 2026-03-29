@@ -16,15 +16,18 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Instance of the global currency wallet
         /// </summary>
-        public TSelf Instance
+        public static TSelf Instance
         {
             get
             {
                 if (_instance) return _instance;
                 _instance = FindAnyObjectByType<TSelf>();
                 if (!_instance)
+                {
                     _instance = new GameObject($"Global Currency Wallet [{typeof(TCurrencyType).Name}]")
                         .AddComponent<TSelf>();
+                    DontDestroyOnLoad(_instance.gameObject);
+                }
                 return _instance;
             }
         }
