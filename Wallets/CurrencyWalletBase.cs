@@ -72,8 +72,6 @@ namespace Systems.SimpleEconomy.Wallets
                 return canAddCurrency;
             }
 
-            long currencyToAdd = currencyAmount;
-
             bool allowOverflow = (flags & ModifyWalletCurrencyFlags.IgnoreBalanceLimits) != 0;
 
             long remainder;
@@ -118,7 +116,18 @@ namespace Systems.SimpleEconomy.Wallets
             // Create context
             CurrencyTakeContext context = new(currency, this, currencyAmount);
 
-            // Ensure that currency can be taken
+            // Check balance unless IgnoreBalanceLimits is set
+            if ((flags & ModifyWalletCurrencyFlags.IgnoreBalanceLimits) == 0 &&
+                (flags & ModifyWalletCurrencyFlags.IgnoreConditions) == 0 &&
+                Balance < context.amountExpected)
+            {
+                OperationResult notEnough = EconomyOperations.NotEnoughCurrency();
+                if (actionSource == ActionSource.Internal) return notEnough;
+                OnCurrencyTakeFailed(context, notEnough);
+                return notEnough;
+            }
+
+            // Ensure that currency can be taken (custom currency conditions)
             OperationResult canTakeCurrency = CanTakeCurrency(context);
             if (!canTakeCurrency && (flags & ModifyWalletCurrencyFlags.IgnoreConditions) == 0)
             {
@@ -135,6 +144,10 @@ namespace Systems.SimpleEconomy.Wallets
             {
                 if ((flags & ModifyWalletCurrencyFlags.IgnoreBalanceLimits) != 0)
                 {
+                    // Underflow protection: ensure Balance - currencyAmount won't wrap
+                    if (Balance < 0 && currencyAmount > Balance - long.MinValue)
+                        return EconomyOperations.Overflow();
+
                     currencyTaken = currencyAmount;
                 }
                 else
@@ -215,13 +228,11 @@ namespace Systems.SimpleEconomy.Wallets
             ActionSource actionSource = ActionSource.External);
 
         /// <summary>
-        ///     Checks if the specified amount of currency can be taken from the wallet
+        ///     Checks if the specified amount of currency can be taken from the wallet.
+        ///     Balance sufficiency is checked separately in TryTake to respect IgnoreBalanceLimits.
         /// </summary>
-        protected virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context)
-        {
-            if (Balance < context.amountExpected) return EconomyOperations.NotEnoughCurrency();
-            return context.currency.CanBeTaken(context);
-        }
+        protected virtual OperationResult CanTakeCurrency(in CurrencyTakeContext context) =>
+            context.currency.CanBeTaken(context);
 
         /// <summary>
         ///     Checks if the specified amount of currency can be added to the wallet
