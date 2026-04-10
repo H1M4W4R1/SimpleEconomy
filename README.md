@@ -40,8 +40,6 @@ public class GoldCurrency : CurrencyBase
 }
 ```
 
-Mark the currency with the `[AutoCreate]` attribute to auto-register it with the `CurrencyDatabase`.
-
 ### 2. Create a Currency Wallet
 
 Extend `CurrencyWalletBase<T>` to create a wallet for your currency:
@@ -128,15 +126,20 @@ public class RestrictedCurrency : CurrencyBase
 Use `ModifyWalletCurrencyFlags` to modify operation behavior:
 
 ```csharp
-// Ignore custom conditions, but still enforce balance limits
+// Ignore custom conditions; overflow/underflow limits still apply.
+// On TryTake with insufficient balance: takes as much as possible and returns CurrencyTakenPartial.
 wallet.TryAdd(100, ModifyWalletCurrencyFlags.IgnoreConditions);
+wallet.TryTake(100, ModifyWalletCurrencyFlags.IgnoreConditions);
 
-// Allow balance to go negative (for systems like debt)
+// Disable overflow protection on add
+wallet.TryAdd(long.MaxValue, ModifyWalletCurrencyFlags.IgnoreBalanceLimits);
+
+// Allow balance to go negative on take (for systems like debt)
 wallet.TryTake(500, ModifyWalletCurrencyFlags.IgnoreBalanceLimits);
 
 // Ignore all checks
-wallet.TryTake(500, 
-    ModifyWalletCurrencyFlags.IgnoreConditions | 
+wallet.TryTake(500,
+    ModifyWalletCurrencyFlags.IgnoreConditions |
     ModifyWalletCurrencyFlags.IgnoreBalanceLimits);
 ```
 
