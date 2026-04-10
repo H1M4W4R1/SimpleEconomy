@@ -1,7 +1,198 @@
-﻿<div align="center">
+<div align="center">
   <h1>Simple Economy</h1>
 </div>
 
 # About
 
-Project cancelled.
+SimpleEconomy is a lightweight, type-safe currency and wallet system for Unity games. It provides robust management of in-game resources (gold, mana, points, etc.) with built-in overflow/underflow protection, customizable conditions, and event-driven architecture.
+
+# Requirements
+
+SimpleEconomy requires the following dependencies:
+
+- **Unity Engine**: Standard MonoBehaviour and ScriptableObject support
+- **Unity.Burst**: Performance optimization
+- **Unity.Collections**: Collection utilities
+- **Unity.Mathematics**: Math operations (particularly `math.min`)
+- **SimpleCore**: Core operation results, database system, and action source enumerations
+
+All dependencies are declared in `SimpleEconomy.asmdef`.
+
+# Usage
+
+## Basic Setup
+
+### 1. Create a Custom Currency
+
+Extend `CurrencyBase` to define a new currency type:
+
+```csharp
+using Systems.SimpleEconomy.Currencies;
+
+public class GoldCurrency : CurrencyBase
+{
+    // Optionally override validation and event methods
+    protected internal override OperationResult CanBeAdded(in CurrencyAddContext context)
+    {
+        // Custom add conditions
+        return base.CanBeAdded(context);
+    }
+}
+```
+
+Mark the currency with the `[AutoCreate]` attribute to auto-register it with the `CurrencyDatabase`.
+
+### 2. Create a Currency Wallet
+
+Extend `CurrencyWalletBase<T>` to create a wallet for your currency:
+
+```csharp
+using Systems.SimpleEconomy.Wallets;
+
+public class PlayerGoldWallet : CurrencyWalletBase<GoldCurrency>
+{
+    // Optionally override event methods to respond to currency changes
+    protected override void OnCurrencyAdded(
+        in CurrencyAddContext context,
+        in OperationResult result,
+        long amountLeft)
+    {
+        // React to currency addition (e.g., update UI)
+        Debug.Log($"Gold added: {context.amount}");
+    }
+}
+```
+
+Attach this component to a GameObject in your scene or reference it directly.
+
+### 3. Add and Take Currency
+
+```csharp
+// Get wallet reference
+var wallet = GetComponent<PlayerGoldWallet>();
+
+// Add currency with overflow protection (default)
+var addResult = wallet.TryAdd(100);
+if (addResult)
+{
+    Debug.Log("Successfully added 100 gold");
+}
+
+// Take currency
+var takeResult = wallet.TryTake(50);
+if (takeResult)
+{
+    Debug.Log("Successfully took 50 gold");
+}
+
+// Check balance
+if (wallet.Has(100))
+{
+    Debug.Log("Wallet has at least 100 gold");
+}
+```
+
+## Advanced Features
+
+### Global Wallet (Singleton Pattern)
+
+Create a shared wallet across your entire game:
+
+```csharp
+public class GlobalGoldWallet : GlobalCurrencyWalletBase<GlobalGoldWallet, GoldCurrency>
+{
+}
+
+// Access from anywhere
+GlobalGoldWallet.Instance.TryAdd(1000);
+```
+
+### Custom Conditions
+
+Override `CanBeTaken` and `CanBeAdded` in your currency to enforce custom rules:
+
+```csharp
+public class RestrictedCurrency : CurrencyBase
+{
+    protected internal override OperationResult CanBeTaken(in CurrencyTakeContext context)
+    {
+        // Example: prevent taking during a specific game state
+        if (IsGamePaused) return EconomyOperations.NotEnoughCurrency();
+        return EconomyOperations.Permitted();
+    }
+}
+```
+
+### Behavior Flags
+
+Use `ModifyWalletCurrencyFlags` to modify operation behavior:
+
+```csharp
+// Ignore custom conditions, but still enforce balance limits
+wallet.TryAdd(100, ModifyWalletCurrencyFlags.IgnoreConditions);
+
+// Allow balance to go negative (for systems like debt)
+wallet.TryTake(500, ModifyWalletCurrencyFlags.IgnoreBalanceLimits);
+
+// Ignore all checks
+wallet.TryTake(500, 
+    ModifyWalletCurrencyFlags.IgnoreConditions | 
+    ModifyWalletCurrencyFlags.IgnoreBalanceLimits);
+```
+
+### Action Source Tracking
+
+Track whether operations come from internal or external sources:
+
+```csharp
+using Systems.SimpleCore.Utility.Enums;
+
+// Internal operation (events will not fire)
+wallet.TryAdd(50, actionSource: ActionSource.Internal);
+
+// External operation (events will fire normally)
+wallet.TryAdd(50, actionSource: ActionSource.External);
+```
+
+## Event Callbacks
+
+Respond to currency operations by overriding event methods in your wallet or currency:
+
+```csharp
+public class CustomWallet : CurrencyWalletBase<MyCurrency>
+{
+    protected override void OnCurrencyAdded(
+        in CurrencyAddContext context,
+        in OperationResult result,
+        long amountLeft)
+    {
+        // Handle successful addition
+    }
+
+    protected override void OnCurrencyAddFailed(
+        in CurrencyAddContext context,
+        in OperationResult result)
+    {
+        // Handle failed addition
+    }
+
+    protected override void OnCurrencyTaken(
+        in CurrencyTakeContext context,
+        in OperationResult result,
+        long amountLeft)
+    {
+        // Handle successful take
+    }
+
+    protected override void OnCurrencyTakeFailed(
+        in CurrencyTakeContext context,
+        in OperationResult result)
+    {
+        // Handle failed take
+    }
+}
+```
+
+## Thread Safety
+
+Currency wallets use internal locking to ensure thread-safe balance modifications. All `TryAdd` and `TryTake` operations are atomic.
