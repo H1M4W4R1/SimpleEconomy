@@ -1,4 +1,4 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using Systems.SimpleEconomy.Currencies;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ namespace Systems.SimpleEconomy.Wallets
         /// <summary>
         ///     Instance of the global currency wallet
         /// </summary>
-        public static TSelf Instance
+        [NotNull] public static TSelf Instance
         {
             get
             {

@@ -137,11 +137,11 @@ namespace Systems.SimpleEconomy.Wallets
                 return canTakeCurrency;
             }
 
-            long currencyTaken;
             long currencyLeftToTake;
 
             lock (_balanceLock)
             {
+                long currencyTaken;
                 if ((flags & ModifyWalletCurrencyFlags.IgnoreBalanceLimits) != 0)
                 {
                     // Underflow protection: ensure Balance - currencyAmount won't wrap
