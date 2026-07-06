@@ -4,7 +4,7 @@
 
 # About
 
-SimpleEconomy is a lightweight, type-safe currency and wallet system for Unity games. It provides robust management of in-game resources (gold, mana, points, etc.) with built-in overflow/underflow protection, customizable conditions, and event-driven architecture.
+SimpleEconomy is a lightweight, type-safe currency and wallet system for Unity games. It provides robust management of in-game resources (gold, mana, points, etc.) with built-in overflow/underflow protection, customizable conditions, and override-based operation callbacks.
 
 # Requirements
 
@@ -28,10 +28,12 @@ Extend `CurrencyBase` to define a new currency type:
 
 ```csharp
 using Systems.SimpleEconomy.Currencies;
+using Systems.SimpleEconomy.Data.Context;
+using Systems.SimpleCore.Operations;
 
 public class GoldCurrency : CurrencyBase
 {
-    // Optionally override validation and event methods
+    // Optionally override validation and callback methods
     protected internal override OperationResult CanBeAdded(in CurrencyAddContext context)
     {
         // Custom add conditions
@@ -42,14 +44,17 @@ public class GoldCurrency : CurrencyBase
 
 ### 2. Create a Currency Wallet
 
-Extend `CurrencyWalletBase<T>` to create a wallet for your currency:
+Extend `CurrencyWalletBase<TCurrencyType>` to create a wallet for your currency:
 
 ```csharp
+using Systems.SimpleCore.Operations;
+using Systems.SimpleEconomy.Data.Context;
 using Systems.SimpleEconomy.Wallets;
+using UnityEngine;
 
 public class PlayerGoldWallet : CurrencyWalletBase<GoldCurrency>
 {
-    // Optionally override event methods to respond to currency changes
+    // Optionally override callback methods to respond to currency changes
     protected override void OnCurrencyAdded(
         in CurrencyAddContext context,
         in OperationResult result,
@@ -67,17 +72,17 @@ Attach this component to a GameObject in your scene or reference it directly.
 
 ```csharp
 // Get wallet reference
-var wallet = GetComponent<PlayerGoldWallet>();
+PlayerGoldWallet wallet = GetComponent<PlayerGoldWallet>();
 
 // Add currency with overflow protection (default)
-var addResult = wallet.TryAdd(100);
+OperationResult addResult = wallet.TryAdd(100);
 if (addResult)
 {
     Debug.Log("Successfully added 100 gold");
 }
 
 // Take currency
-var takeResult = wallet.TryTake(50);
+OperationResult takeResult = wallet.TryTake(50);
 if (takeResult)
 {
     Debug.Log("Successfully took 50 gold");
@@ -150,18 +155,22 @@ Track whether operations come from internal or external sources:
 ```csharp
 using Systems.SimpleCore.Utility.Enums;
 
-// Internal operation (events will not fire)
+// Internal operation (callbacks will not fire)
 wallet.TryAdd(50, actionSource: ActionSource.Internal);
 
-// External operation (events will fire normally)
+// External operation (callbacks will fire normally)
 wallet.TryAdd(50, actionSource: ActionSource.External);
 ```
 
-## Event Callbacks
+## Operation Callbacks
 
-Respond to currency operations by overriding event methods in your wallet or currency:
+Respond to currency operations by overriding callback methods in your wallet or currency:
 
 ```csharp
+using Systems.SimpleCore.Operations;
+using Systems.SimpleEconomy.Data.Context;
+using Systems.SimpleEconomy.Wallets;
+
 public class CustomWallet : CurrencyWalletBase<MyCurrency>
 {
     protected override void OnCurrencyAdded(

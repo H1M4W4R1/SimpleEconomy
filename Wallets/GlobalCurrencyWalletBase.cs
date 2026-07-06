@@ -21,12 +21,12 @@ namespace Systems.SimpleEconomy.Wallets
             get
             {
                 if (_instance) return _instance;
-                _instance = FindAnyObjectByType<TSelf>();
+                _instance = FindAnyObjectByType<TSelf>(FindObjectsInactive.Include);
                 if (!_instance)
                 {
                     _instance = new GameObject($"Global Currency Wallet [{typeof(TCurrencyType).Name}]")
                         .AddComponent<TSelf>();
-                    DontDestroyOnLoad(_instance.gameObject);
+                    if (Application.isPlaying) DontDestroyOnLoad(_instance.gameObject);
                 }
                 return _instance;
             }

@@ -14,13 +14,13 @@ namespace Systems.SimpleEconomy.Wallets
     /// <summary>
     ///     Wallet for a single currency type.
     /// </summary>
-    /// <typeparam name="CurrencyType">
-    ///     The new() constraint is required by AddressableDatabase.GetExact and limits CurrencyType
+    /// <typeparam name="TCurrencyType">
+    ///     The new() constraint is required by AddressableDatabase.GetExact and limits TCurrencyType
     ///     to concrete (non-abstract) types. ScriptableObject-derived currencies must still be created
-    ///     via ScriptableObject.CreateInstance, not new(). Do not use new CurrencyType() directly.
+    ///     via ScriptableObject.CreateInstance, not new(). Do not use new TCurrencyType() directly.
     /// </typeparam>
-    public abstract class CurrencyWalletBase<CurrencyType> : CurrencyWalletBase
-        where CurrencyType : CurrencyBase, new()
+    public abstract class CurrencyWalletBase<TCurrencyType> : CurrencyWalletBase
+        where TCurrencyType : CurrencyBase, new()
     {
         /// <summary>
         ///     Adds the specified amount of currency to the wallet.
@@ -54,13 +54,13 @@ namespace Systems.SimpleEconomy.Wallets
             if (currencyAmount <= 0) return EconomyOperations.InvalidCurrencyAmount();
 
             // Get currency from database
-            CurrencyType currency = CurrencyDatabase.GetExact<CurrencyType>();
-            Assert.IsNotNull(currency, "Currency was not found in database.");
+            TCurrencyType currency = CurrencyDatabase.GetExact<TCurrencyType>();
+            Assert.IsFalse(ReferenceEquals(currency, null), "Currency was not found in database.");
 
-            if (currency == null) return EconomyOperations.CurrencyNotFound();
+            if (ReferenceEquals(currency, null)) return EconomyOperations.CurrencyNotFound();
 
             // Create context
-            CurrencyAddContext context = new(currency, this, currencyAmount);
+            CurrencyAddContext context = new CurrencyAddContext(currency, this, currencyAmount);
 
             // Ensure that currency can be added
             OperationResult canAddCurrency = CanAddCurrency(context);
@@ -80,7 +80,13 @@ namespace Systems.SimpleEconomy.Wallets
                 remainder = Add(currencyAmount, allowOverflow);
             }
 
-            if (remainder == -1) return EconomyOperations.Overflow();
+            if (remainder == -1)
+            {
+                OperationResult overflowResult = EconomyOperations.Overflow();
+                if (actionSource == ActionSource.Internal) return overflowResult;
+                OnCurrencyAddFailed(context, overflowResult);
+                return overflowResult;
+            }
 
             // Invoke event
             OperationResult currencyAddResult = EconomyOperations.CurrencyAdded();
@@ -108,13 +114,13 @@ namespace Systems.SimpleEconomy.Wallets
             if (currencyAmount <= 0) return EconomyOperations.InvalidCurrencyAmount();
 
             // Get currency from database
-            CurrencyType currency = CurrencyDatabase.GetExact<CurrencyType>();
-            Assert.IsNotNull(currency, "Currency was not found in database.");
+            TCurrencyType currency = CurrencyDatabase.GetExact<TCurrencyType>();
+            Assert.IsFalse(ReferenceEquals(currency, null), "Currency was not found in database.");
 
-            if (currency == null) return EconomyOperations.CurrencyNotFound();
+            if (ReferenceEquals(currency, null)) return EconomyOperations.CurrencyNotFound();
 
             // Create context
-            CurrencyTakeContext context = new(currency, this, currencyAmount);
+            CurrencyTakeContext context = new CurrencyTakeContext(currency, this, currencyAmount);
 
             // Check balance unless IgnoreBalanceLimits is set
             if ((flags & ModifyWalletCurrencyFlags.IgnoreBalanceLimits) == 0 &&
@@ -137,7 +143,8 @@ namespace Systems.SimpleEconomy.Wallets
                 return canTakeCurrency;
             }
 
-            long currencyLeftToTake;
+            bool underflowDetected = false;
+            long currencyLeftToTake = currencyAmount;
 
             lock (_balanceLock)
             {
@@ -146,19 +153,32 @@ namespace Systems.SimpleEconomy.Wallets
                 {
                     // Underflow protection: ensure Balance - currencyAmount won't wrap
                     if (Balance < 0 && currencyAmount > Balance - long.MinValue)
-                        return EconomyOperations.Overflow();
-
-                    currencyTaken = currencyAmount;
+                    {
+                        underflowDetected = true;
+                        currencyTaken = 0L;
+                    }
+                    else
+                    {
+                        currencyTaken = currencyAmount;
+                    }
                 }
                 else
                 {
-                    currencyTaken = math.min(Balance, currencyAmount);
+                    currencyTaken = Balance <= 0 ? 0L : math.min(Balance, currencyAmount);
                 }
 
                 currencyLeftToTake = currencyAmount - currencyTaken;
 
                 // Take currency
-                Balance -= currencyTaken;
+                if (!underflowDetected) Balance -= currencyTaken;
+            }
+
+            if (underflowDetected)
+            {
+                OperationResult overflowResult = EconomyOperations.Overflow();
+                if (actionSource == ActionSource.Internal) return overflowResult;
+                OnCurrencyTakeFailed(context, overflowResult);
+                return overflowResult;
             }
 
             OperationResult currencyTakeResult = currencyLeftToTake > 0
@@ -202,7 +222,7 @@ namespace Systems.SimpleEconomy.Wallets
 
     public abstract class CurrencyWalletBase : MonoBehaviour
     {
-        protected readonly object _balanceLock = new();
+        protected readonly object _balanceLock = new object();
 
         /// <summary>
         ///     Balance of the wallet
