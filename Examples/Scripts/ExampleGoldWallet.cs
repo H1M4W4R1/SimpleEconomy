@@ -7,6 +7,12 @@ namespace Systems.SimpleEconomy.Examples.Scripts
 {
     public sealed class ExampleGoldWallet : CurrencyWalletBase<ExampleGoldCurrency>
     {
+        public void ResetBalance()
+        {
+            Balance = 0L;
+            Debug.Log("[SimpleEconomy] Wallet balance reset.");
+        }
+
         protected override void OnCurrencyAdded(
             in CurrencyAddContext context,
             in OperationResult result,

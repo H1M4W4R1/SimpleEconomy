@@ -208,3 +208,9 @@ public class CustomWallet : CurrencyWalletBase<MyCurrency>
 ## Thread Safety
 
 Currency wallets use internal locking to ensure thread-safe balance modifications. All `TryAdd` and `TryTake` operations are atomic.
+
+## Examples included
+
+- `Scene - Economy.unity`: exposes runtime Unity UI for grant, spend, overspend, debt-spend, reset, and full wallet-flow cases.
+- `ExampleEconomyScene`: scene driver with runtime buttons and a context menu action for replaying the example.
+- `ExampleGoldCurrency` and `ExampleGoldWallet`: minimal typed currency and wallet setup.
